@@ -1,6 +1,7 @@
 package net.cydhra.technocracy.foundation.conduitnet.conduit
 
-import net.cydhra.technocracy.foundation.pipes.types.PipeType
+import net.cydhra.technocracy.foundation.conduitnet.PipeType
+
 
 /**
  * @param a first node of the edge
