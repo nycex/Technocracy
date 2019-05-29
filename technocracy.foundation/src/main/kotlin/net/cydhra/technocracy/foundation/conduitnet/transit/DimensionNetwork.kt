@@ -22,7 +22,6 @@ class DimensionNetwork {
      */
     fun loadNetworkChunk(chunk: NetworkChunk) {
         activeChunks[chunk.chunkPos] = chunk
-
     }
 
     /**
@@ -30,5 +29,24 @@ class DimensionNetwork {
      */
     fun unloadNetworkChunk(chunk: NetworkChunk) {
         activeChunks.remove(chunk.chunkPos)
+    }
+
+    /**
+     * @param chunkPos a chunk coordinate pair
+     *
+     * @return true, if the network chunk at the given location is currently loaded.
+     */
+    fun isChunkLoaded(chunkPos: ChunkPos): Boolean {
+        return activeChunks.containsKey(chunkPos)
+    }
+
+    /**
+     * Get the [NetworkChunk] at the given [ChunkPos].
+     * @throws NullPointerException if the chunk at the given position isn't loaded.
+     *
+     * @see isChunkLoaded
+     */
+    fun getChunk(chunkPos: ChunkPos): NetworkChunk {
+        return activeChunks[chunkPos]!!
     }
 }
