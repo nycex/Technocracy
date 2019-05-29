@@ -3,6 +3,7 @@ package net.cydhra.technocracy.foundation.conduitnet
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkNode
 import net.cydhra.technocracy.foundation.conduitnet.transit.TransitNode
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.chunk.Chunk
 
 /**
@@ -14,7 +15,13 @@ class NetworkChunk(private val chunk: Chunk) {
 
     private val nodes = mutableListOf<ConduitNetworkNode>()
 
-    private val transitNodes = mutableListOf<TransitNode>()
+    private val internalTransitNetwork = mutableListOf<TransitNode>()
+
+    /**
+     * [ChunkPos] of the network chunk
+     */
+    val chunkPos: ChunkPos
+        get() = chunk.pos
 
     /**
      * Incremented each time a modification of the internal data is occurring, so cached routes know when they have
@@ -33,22 +40,6 @@ class NetworkChunk(private val chunk: Chunk) {
         TODO()
 
         cacheValidationCounter++
-    }
-
-    fun loadNeighborChunk(chunk: NetworkChunk) {
-        TODO()
-
-        cacheValidationCounter++
-    }
-
-    fun unloadNeighborChunk(chunk: NetworkChunk) {
-        TODO()
-
-        cacheValidationCounter++
-    }
-
-    fun unload() {
-        TODO()
     }
 
     fun serialize(): NBTTagCompound {
