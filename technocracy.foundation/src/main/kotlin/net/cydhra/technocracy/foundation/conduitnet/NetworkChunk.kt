@@ -1,5 +1,6 @@
 package net.cydhra.technocracy.foundation.conduitnet
 
+import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkEdge
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkGatewayNode
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkNode
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkPassiveNode
@@ -11,6 +12,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * A chunk of the network structure that is placed inside a chunk (who would have thought)
@@ -20,6 +22,8 @@ import net.minecraft.world.chunk.Chunk
 class NetworkChunk(private val chunk: Chunk) {
 
     private val nodes = mutableListOf<ConduitNetworkNode>()
+
+    private val edges = mutableMapOf<BlockPos, MutableList<ConduitNetworkEdge>>()
 
     /**
      * The internal network of transit nodes and their edges. Updated whenever the network changes.
@@ -82,7 +86,72 @@ class NetworkChunk(private val chunk: Chunk) {
     private fun markDirty() {
         cacheValidationCounter++
 
-        TODO("recalculate internal transit network")
+        recalculateInternalTransitNetwork()
+    }
+
+    /**
+     * The connections and path costs inside the chunk can be calculated and stored in an internal transit structure
+     * to save on performance on large networks. The calculation is done once every change in the network. All
+     * connected components of the graph are evaluated and their path costs are calculated.
+     */
+    private fun recalculateInternalTransitNetwork() {
+        val unvisitedNodes = LinkedBlockingQueue<ConduitNetworkNode>(this.nodes.size)
+        unvisitedNodes.addAll(this.nodes)
+
+        /**
+         * Perform a depth first search for all gateway nodes that are reachable from the given start node. While
+         * doing that, remove any visited nodes from the queue that is used in the main loop.
+         */
+        fun depthFirstDiscoverNode(node: ConduitNetworkNode, transitList: MutableList<TransitNode>) {
+            if (node is ConduitNetworkGatewayNode) {
+                transitList += TransitNode(node)
+
+                if (!node.eligibleForTransit) {
+                    return
+                }
+            }
+
+            this.edges[node.pos]?.forEach { edge ->
+                val nextNode =
+                        if (edge.a == node)
+                            edge.b
+                        else
+                            edge.a
+
+                if (unvisitedNodes.remove(nextNode)) {
+                    depthFirstDiscoverNode(nextNode, transitList)
+                }
+            }
+        }
+
+        /**
+         * Calculate the minimum number of nodes that need to be traversed to get from [origin] to [target] using an
+         * A* algorithm. The algorithm uses [manhattanDistance] as a heuristic to choose depth-first paths for
+         * traversal.
+         */
+        fun calculateAStarPathCost(origin: TransitNode, target: TransitNode): Int {
+            TODO()
+        }
+
+        while (unvisitedNodes.isNotEmpty()) {
+            // take any node out of the node list of the chunk
+            val current = unvisitedNodes.poll()
+
+            // and find the graph component of the node
+            val connectedTransitComponent = mutableListOf<TransitNode>()
+            depthFirstDiscoverNode(current, connectedTransitComponent)
+
+            // then calculate all paths between the connected transit nodes
+            connectedTransitComponent.forEach { transitNode ->
+                transitNode.pathCosts.clear()
+
+                connectedTransitComponent.forEach { target ->
+                    if (target != transitNode) {
+                        transitNode.pathCosts[target] = calculateAStarPathCost(transitNode, target)
+                    }
+                }
+            }
+        }
     }
 
     fun serialize(): NBTTagCompound {
@@ -98,5 +167,12 @@ class NetworkChunk(private val chunk: Chunk) {
      */
     private fun BlockPos.atChunkEdge(): Boolean {
         return (this.x % 16 == 0 || this.x % 15 == 0) && (this.z % 16 == 0 || this.z % 15 == 0)
+    }
+
+    /**
+     * Extension utility function to calculate the Manhattan-distance of two block positions.
+     */
+    private fun BlockPos.manhattanDistance(other: BlockPos): Int {
+        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y) + Math.abs(this.z - other.z)
     }
 }
