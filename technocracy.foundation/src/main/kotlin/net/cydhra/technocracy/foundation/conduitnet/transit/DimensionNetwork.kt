@@ -27,8 +27,8 @@ class DimensionNetwork {
     /**
      * Disconnect a chunk from the transit network.
      */
-    fun unloadNetworkChunk(chunk: NetworkChunk) {
-        activeChunks.remove(chunk.chunkPos)
+    fun unloadNetworkChunk(chunkPos: ChunkPos) {
+        activeChunks.remove(chunkPos)
     }
 
     /**
