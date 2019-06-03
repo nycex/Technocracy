@@ -75,6 +75,10 @@ class NetworkChunk(private val chunk: Chunk) {
         markDirty()
     }
 
+    fun insertEdge(pos: BlockPos, face: EnumFacing) {
+
+    }
+
     private fun markDirty() {
         cacheValidationCounter++
 
