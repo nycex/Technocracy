@@ -7,4 +7,4 @@ import net.minecraft.util.math.BlockPos
  *
  * @param pos the block position of the pipe tile entity that this node is a model of
  */
-abstract class ConduitNetworkNode(private val pos: BlockPos)
+abstract class ConduitNetworkNode(val pos: BlockPos)
