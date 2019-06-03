@@ -44,7 +44,7 @@ class NetworkChunk(private val chunk: Chunk) {
 
         val newNode = if (tileEntity is TileEntityPipe) {
             if (pos.atChunkEdge()) {
-                ConduitNetworkGatewayNode(pos)
+                ConduitNetworkGatewayNode(pos, true)
             } else {
                 ConduitNetworkPassiveNode(pos)
             }

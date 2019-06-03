@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos
  * input or generates output for the network. It can also be both: A machine placed at a chunk border must also be a
  * transit node, because it must be connected to pipes in the chunk next to it.
  *
- * @param pos a block position
+ * @param pos a block position where this node is located
+ * @param eligibleForTransit whether this node can be used to route contents through.
  */
-open class ConduitNetworkGatewayNode(pos: BlockPos) : ConduitNetworkNode(pos)
+open class ConduitNetworkGatewayNode(pos: BlockPos, val eligibleForTransit: Boolean) : ConduitNetworkNode(pos)
