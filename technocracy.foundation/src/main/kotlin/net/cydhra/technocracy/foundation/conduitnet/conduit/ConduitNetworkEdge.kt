@@ -15,10 +15,10 @@ class ConduitNetworkEdge(val a: ConduitNetworkNode, val b: ConduitNetworkNode, v
     /**
      * Offer the first edge for destructuring
      */
-    operator fun component0(): ConduitNetworkNode = a
+    operator fun component1(): ConduitNetworkNode = a
 
     /**
      * Offer the second edge for destructuring
      */
-    operator fun component1(): ConduitNetworkNode = b
+    operator fun component2(): ConduitNetworkNode = b
 }
