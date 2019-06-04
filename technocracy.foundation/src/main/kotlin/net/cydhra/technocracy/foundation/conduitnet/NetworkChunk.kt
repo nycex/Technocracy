@@ -175,29 +175,31 @@ class NetworkChunk(private val chunk: Chunk) {
             val priorityQueue = PriorityQueue<DijkstraState>(comparator)
 
             val originState = DijkstraState(origin.conduitNode, null)
-            val reachable = this.edges[origin.conduitNode.pos]
-                    ?.filter { (a, b) -> a == origin.conduitNode || b == origin.conduitNode }
-                    ?.map { (a, b) ->
-                        if (a == origin.conduitNode) DijkstraState(b, originState) else DijkstraState(a, originState)
-                    }
-                    ?: emptyList()
 
-            priorityQueue.addAll(reachable)
-
+            var candidate = originState
             while (priorityQueue.isNotEmpty()) {
-                val candiate = priorityQueue.poll()
-                if (candiate.node == target.conduitNode) {
-                    return candiate.calculatePath()
-                } else if (candiate.transitNode?.pathCosts?.get(target) ?: -1 > 0) {
-                    return candiate.calculatePath() + candiate.transitNode!!.pathCosts[target]!!
-                } else {
-                    TODO("add reachables to queue")
+                when {
+                    candidate.node == target.conduitNode ->
+                        return candidate.calculatePath()
+                    candidate.transitNode?.pathCosts?.get(target) ?: -1 > 0 ->
+                        return candidate.calculatePath() + candidate.transitNode!!.pathCosts[target]!!
+                    else -> {
+                        val reachable = this.edges[candidate.node.pos]
+                                ?.filter { (a, b) -> a == candidate.node || b == candidate.node }
+                                ?.map { (a, b) ->
+                                    if (a == candidate.node) DijkstraState(b, candidate) else DijkstraState(a, candidate)
+                                }
+                                ?: emptyList()
+
+                        priorityQueue.addAll(reachable)
+                    }
                 }
+
+                candidate = priorityQueue.poll()
             }
-            TODO()
+
+            throw IllegalArgumentException("there is no way from ${origin.conduitNode.pos} to ${target.conduitNode.pos}")
         }
-
-
 
         while (unvisitedNodes.isNotEmpty()) {
             // take any node out of the node list of the chunk
@@ -217,7 +219,7 @@ class NetworkChunk(private val chunk: Chunk) {
 
                 connectedTransitComponent.forEach { target ->
                     if (target != transitNode) {
-                        transitNode.pathCosts[target] = calculateAStarPathCost(transitNode, target)
+                        transitNode.pathCosts[target] = calculateAStarPathCost(transitNode, target, connectedTransitComponent)
                     }
                 }
             }
