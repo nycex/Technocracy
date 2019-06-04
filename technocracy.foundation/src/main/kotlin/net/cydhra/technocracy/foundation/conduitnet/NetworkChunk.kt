@@ -151,8 +151,8 @@ class NetworkChunk(private val chunk: Chunk) {
                                 ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
                     } else if (node is ConduitNetworkGatewayNode) {
                         this.transitNode = transitNet.find { it.conduitNode == node }
-                        return transitNode!!.pathCosts[target]
-                                ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
+                        return Math.max(transitNode!!.pathCosts[target]!!,
+                                this.node.pos.manhattanDistance(target.conduitNode.pos))
                     }
 
                     return this.node.pos.manhattanDistance(target.conduitNode.pos)
