@@ -1,5 +1,6 @@
 package net.cydhra.technocracy.foundation.conduitnet
 
+import com.google.common.collect.Lists
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkEdge
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkGatewayNode
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkNode
@@ -12,6 +13,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
 import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
+import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
 /**
@@ -129,9 +131,73 @@ class NetworkChunk(private val chunk: Chunk) {
          * A* algorithm. The algorithm uses [manhattanDistance] as a heuristic to choose depth-first paths for
          * traversal.
          */
-        fun calculateAStarPathCost(origin: TransitNode, target: TransitNode): Int {
+        fun calculateAStarPathCost(origin: TransitNode, target: TransitNode, transitNet: List<TransitNode>): Int {
+            /**
+             * Extension utility function to calculate the Manhattan-distance of two block positions.
+             */
+            fun BlockPos.manhattanDistance(other: BlockPos): Int {
+                return Math.abs(this.x - other.x) + Math.abs(this.y - other.y) + Math.abs(this.z - other.z)
+            }
+
+            /**
+             * State for the algorithm. Saves for each node how to get there and its respective transit node, if it
+             * is a gateway node.
+             */
+            data class DijkstraState(val node: ConduitNetworkNode, val comeFrom: DijkstraState?,
+                                     var transitNode: TransitNode? = null) {
+                fun heuristic(target: TransitNode): Int {
+                    if (transitNode != null) {
+                        return transitNode!!.pathCosts[target]
+                                ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
+                    } else if (node is ConduitNetworkGatewayNode) {
+                        this.transitNode = transitNet.find { it.conduitNode == node }
+                        return transitNode!!.pathCosts[target]
+                                ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
+                    }
+
+                    return this.node.pos.manhattanDistance(target.conduitNode.pos)
+                }
+
+                fun calculatePath(): Int {
+                    return if (comeFrom == null)
+                        0
+                    else
+                        1 + comeFrom.calculatePath()
+                }
+            }
+
+            // a comparator using the node's heuristics to compare them.
+            val comparator = kotlin.Comparator<DijkstraState> { state1, state2 ->
+                state1.heuristic(target) - state2.heuristic(target)
+            }
+
+            // a priority queue to select nodes to try next
+            val priorityQueue = PriorityQueue<DijkstraState>(comparator)
+
+            val originState = DijkstraState(origin.conduitNode, null)
+            val reachable = this.edges[origin.conduitNode.pos]
+                    ?.filter { (a, b) -> a == origin.conduitNode || b == origin.conduitNode }
+                    ?.map { (a, b) ->
+                        if (a == origin.conduitNode) DijkstraState(b, originState) else DijkstraState(a, originState)
+                    }
+                    ?: emptyList()
+
+            priorityQueue.addAll(reachable)
+
+            while (priorityQueue.isNotEmpty()) {
+                val candiate = priorityQueue.poll()
+                if (candiate.node == target.conduitNode) {
+                    return candiate.calculatePath()
+                } else if (candiate.transitNode?.pathCosts?.get(target) ?: -1 > 0) {
+                    return candiate.calculatePath() + candiate.transitNode!!.pathCosts[target]!!
+                } else {
+                    TODO("add reachables to queue")
+                }
+            }
             TODO()
         }
+
+
 
         while (unvisitedNodes.isNotEmpty()) {
             // take any node out of the node list of the chunk
@@ -142,6 +208,10 @@ class NetworkChunk(private val chunk: Chunk) {
             depthFirstDiscoverNode(current, connectedTransitComponent)
 
             // then calculate all paths between the connected transit nodes
+            Lists.cartesianProduct(connectedTransitComponent, connectedTransitComponent)
+                    .filter { (i, j) -> i != j }
+                    .forEach { (i, j) -> i.pathCosts[j] = -1 }
+
             connectedTransitComponent.forEach { transitNode ->
                 transitNode.pathCosts.clear()
 
@@ -167,12 +237,5 @@ class NetworkChunk(private val chunk: Chunk) {
      */
     private fun BlockPos.atChunkEdge(): Boolean {
         return (this.x % 16 == 0 || this.x % 15 == 0) && (this.z % 16 == 0 || this.z % 15 == 0)
-    }
-
-    /**
-     * Extension utility function to calculate the Manhattan-distance of two block positions.
-     */
-    private fun BlockPos.manhattanDistance(other: BlockPos): Int {
-        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y) + Math.abs(this.z - other.z)
     }
 }
