@@ -100,7 +100,9 @@ class NetworkChunk(private val chunk: Chunk) {
     }
 
     fun insertEdge(pos: BlockPos, face: EnumFacing) {
+        TODO()
 
+        markDirty()
     }
 
     private fun markDirty() {
