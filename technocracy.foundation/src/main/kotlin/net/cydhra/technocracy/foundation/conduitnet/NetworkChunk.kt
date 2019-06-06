@@ -89,8 +89,20 @@ class NetworkChunk(private val chunk: Chunk) {
         markDirty()
     }
 
-    fun removeNode(pos: BlockPos, world: World) {
-        TODO()
+    fun removeNode(pos: BlockPos, world: World, pipeType: PipeType) {
+        // remove edges
+        val iter = edges[pos]!!.iterator()
+        for (edge in iter) {
+            if (edge.type != pipeType)
+                continue
+
+            val otherNode = if (edge.a.pos == pos) edge.b else edge.a
+            edges[otherNode.pos]!!.remove(edge)
+            iter.remove()
+        }
+
+        // remove node
+        nodes.removeIf { it.pos == pos && it.type == pipeType }
 
         markDirty()
     }
