@@ -8,6 +8,8 @@ import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkPassiv
 import net.cydhra.technocracy.foundation.conduitnet.transit.TransitNode
 import net.cydhra.technocracy.foundation.tileentity.TileEntityPipe
 import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.NBTUtil
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.ChunkPos
@@ -261,7 +263,25 @@ class NetworkChunk(private val chunk: Chunk) {
     }
 
     fun serialize(): NBTTagCompound {
-        TODO("not implemented")
+        val compound = NBTTagCompound()
+
+        val nodesList = NBTTagList()
+        this.nodes
+                .map { node ->
+                    NBTTagCompound().apply {
+                        setTag("pos", NBTUtil.createPosTag(node.pos))
+                        setInteger("type", node.type.ordinal)
+
+                        if (node is ConduitNetworkGatewayNode) {
+                            setBoolean("transit", node.eligibleForTransit)
+                        }
+                    }
+                }
+                .forEach(nodesList::appendTag)
+
+        compound.setTag("nodes", nodesList)
+
+        return compound
     }
 
     fun deserialize(compound: NBTTagCompound) {
