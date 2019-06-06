@@ -58,13 +58,31 @@ class NetworkChunk(private val chunk: Chunk) {
             // else if sided inventory capability
             // else if fluid inventory capability
             // else if energy storage capability
-            TODO()
+            ConduitNetworkGatewayNode(pos, false)
         }
 
-        TODO("insert edges")
+        nodes += newNode
 
+        for (face in EnumFacing.values()) {
+            val offPos = newNode.pos.offset(face)
 
-        TODO("find neighbour workers")
+            if (nodes.any { it.pos == offPos })
+                continue
+
+            world.getTileEntity(offPos) ?: continue
+            insertNode(offPos, world)
+        }
+
+        for (face in EnumFacing.values()) {
+            val offPos = newNode.pos.offset(face)
+            if (edges[pos]?.any { (a, b) -> (if (a == newNode) b else a).pos == offPos } != null)
+                continue
+            val neighborNode = nodes.firstOrNull { it.pos == offPos } ?: continue
+
+            edges.putIfAbsent(pos, mutableListOf())
+            // TODO correct pipe type
+            edges[pos]!!.add(ConduitNetworkEdge(newNode, neighborNode, type = PipeType.ENERGY))
+        }
 
         markDirty()
     }
