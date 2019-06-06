@@ -97,7 +97,7 @@ class NetworkChunk(private val chunk: Chunk) {
                 continue
 
             val otherNode = if (edge.a.pos == pos) edge.b else edge.a
-            edges[otherNode.pos]!!.remove(edge)
+            edges[otherNode.pos]!!.removeIf { it.type == pipeType && (it.a == pos || it.b == pos) }
             iter.remove()
         }
 
