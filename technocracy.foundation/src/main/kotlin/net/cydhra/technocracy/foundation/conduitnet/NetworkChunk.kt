@@ -73,15 +73,18 @@ class NetworkChunk(private val chunk: Chunk) {
             insertNode(offPos, world)
         }
 
+        edges.putIfAbsent(pos, mutableListOf())
+
         for (face in EnumFacing.values()) {
             val offPos = newNode.pos.offset(face)
             if (edges[pos]?.any { (a, b) -> (if (a == newNode) b else a).pos == offPos } != null)
                 continue
             val neighborNode = nodes.firstOrNull { it.pos == offPos } ?: continue
 
-            edges.putIfAbsent(pos, mutableListOf())
             // TODO correct pipe type
-            edges[pos]!!.add(ConduitNetworkEdge(newNode, neighborNode, type = PipeType.ENERGY))
+            val edge = ConduitNetworkEdge(newNode, neighborNode, type = PipeType.ENERGY)
+            edges[pos]!!.add(edge)
+            edges[offPos]!!.add(edge)
         }
 
         markDirty()
