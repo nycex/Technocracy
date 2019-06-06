@@ -45,20 +45,20 @@ class NetworkChunk(private val chunk: Chunk) {
     var cacheValidationCounter = 0
         private set
 
-    fun insertNode(pos: BlockPos, world: World) {
+    fun insertNode(pos: BlockPos, world: World, pipeType: PipeType) {
         val tileEntity = world.getTileEntity(pos) ?: error("cannot insert normal block into network")
 
         val newNode = if (tileEntity is TileEntityPipe) {
             if (pos.atChunkEdge()) {
-                ConduitNetworkGatewayNode(pos, true)
+                ConduitNetworkGatewayNode(pos, true, pipeType)
             } else {
-                ConduitNetworkPassiveNode(pos)
+                ConduitNetworkPassiveNode(pos, pipeType)
             }
         } else {
             // else if sided inventory capability
             // else if fluid inventory capability
             // else if energy storage capability
-            ConduitNetworkGatewayNode(pos, false)
+            ConduitNetworkGatewayNode(pos, false, PipeType.NONE)
         }
 
         nodes += newNode
@@ -70,7 +70,7 @@ class NetworkChunk(private val chunk: Chunk) {
                 continue
 
             world.getTileEntity(offPos) ?: continue
-            insertNode(offPos, world)
+            insertNode(offPos, world, pipeType)
         }
 
         edges.putIfAbsent(pos, mutableListOf())
@@ -81,8 +81,7 @@ class NetworkChunk(private val chunk: Chunk) {
                 continue
             val neighborNode = nodes.firstOrNull { it.pos == offPos } ?: continue
 
-            // TODO correct pipe type
-            val edge = ConduitNetworkEdge(newNode, neighborNode, type = PipeType.ENERGY)
+            val edge = ConduitNetworkEdge(newNode, neighborNode, type = pipeType)
             edges[pos]!!.add(edge)
             edges[offPos]!!.add(edge)
         }

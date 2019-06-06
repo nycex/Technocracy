@@ -1,5 +1,6 @@
 package net.cydhra.technocracy.foundation.conduitnet.conduit
 
+import net.cydhra.technocracy.foundation.conduitnet.PipeType
 import net.minecraft.util.math.BlockPos
 
 /**
@@ -7,4 +8,4 @@ import net.minecraft.util.math.BlockPos
  *
  * @param pos the block position of the pipe tile entity that this node is a model of
  */
-abstract class ConduitNetworkNode(val pos: BlockPos)
+abstract class ConduitNetworkNode(val pos: BlockPos, val type: PipeType)

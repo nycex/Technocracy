@@ -1,5 +1,6 @@
 package net.cydhra.technocracy.foundation.conduitnet.conduit
 
+import net.cydhra.technocracy.foundation.conduitnet.PipeType
 import net.minecraft.util.math.BlockPos
 
 /**
@@ -10,5 +11,7 @@ import net.minecraft.util.math.BlockPos
  *
  * @param pos a block position where this node is located
  * @param eligibleForTransit whether this node can be used to route contents through.
+ * @param type the pipe type of the node
  */
-open class ConduitNetworkGatewayNode(pos: BlockPos, val eligibleForTransit: Boolean) : ConduitNetworkNode(pos)
+open class ConduitNetworkGatewayNode(pos: BlockPos, val eligibleForTransit: Boolean, type: PipeType) :
+        ConduitNetworkNode(pos, type)
