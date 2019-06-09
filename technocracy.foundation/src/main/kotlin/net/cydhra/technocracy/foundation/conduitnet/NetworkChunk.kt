@@ -25,6 +25,14 @@ import java.util.concurrent.LinkedBlockingQueue
  */
 class NetworkChunk(private val chunk: Chunk) {
 
+    companion object {
+        const val NBT_KEY_NODE_LIST = "nodes"
+        const val NBT_KEY_EDGE_MAP_POSITIONS = "pos"
+        const val NBT_KEY_EDGE_MAP_EDGES = "edge"
+        const val NBT_KEY_EDGE_MAP = "edges"
+        const val NBT_KEY_TRANIST_LIST = "transit"
+    }
+
     private val nodes = mutableListOf<ConduitNetworkNode>()
 
     private val edges = mutableMapOf<BlockPos, MutableList<ConduitNetworkEdge>>()
@@ -269,7 +277,7 @@ class NetworkChunk(private val chunk: Chunk) {
 
         val nodesList = NBTTagList()
         this.nodes.map(ConduitNetworkNode.Companion::serializeNode).forEach(nodesList::appendTag)
-        compound.setTag("nodes", nodesList)
+        compound.setTag(NBT_KEY_NODE_LIST, nodesList)
 
         val posList = NBTTagList()
         this.edges
@@ -277,18 +285,34 @@ class NetworkChunk(private val chunk: Chunk) {
                     val nbtEdgesList = NBTTagList()
                     edges.map(ConduitNetworkEdge::serializeNBT).map(nbtEdgesList::appendTag)
                     NBTTagCompound().apply {
-                        setTag("pos", NBTUtil.createPosTag(pos))
-                        setTag("edges", nbtEdgesList)
+                        setTag(NBT_KEY_EDGE_MAP_POSITIONS, NBTUtil.createPosTag(pos))
+                        setTag(NBT_KEY_EDGE_MAP_EDGES, nbtEdgesList)
                     }
                 }
                 .forEach(posList::appendTag)
-        compound.setTag("edges", posList)
+        compound.setTag(NBT_KEY_EDGE_MAP, posList)
+
+        // TODO transit network serialization
 
         return compound
     }
 
     fun deserialize(compound: NBTTagCompound) {
-        TODO()
+        this.nodes.addAll(compound.getTagList(NBT_KEY_NODE_LIST, 10)
+                .filterIsInstance<NBTTagCompound>().map(ConduitNetworkNode.Companion::deserializeNode))
+
+        compound.getTagList(NBT_KEY_EDGE_MAP, 10)
+                .filterIsInstance<NBTTagCompound>()
+                .map { compound ->
+                    val pos = NBTUtil.getPosFromTag(compound.getCompoundTag(NBT_KEY_EDGE_MAP_POSITIONS))
+                    val edgeList = compound.getTagList(NBT_KEY_EDGE_MAP_EDGES, 10)
+                    this.edges[pos] = edgeList
+                            .filterIsInstance<NBTTagCompound>()
+                            .map { nbt -> ConduitNetworkEdge().apply { deserializeNBT(nbt) } }
+                            .toMutableList()
+                }
+
+        // TODO transit network deserialization
     }
 
     /**
