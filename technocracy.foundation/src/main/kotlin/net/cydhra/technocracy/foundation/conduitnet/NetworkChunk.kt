@@ -266,20 +266,21 @@ class NetworkChunk(private val chunk: Chunk) {
         val compound = NBTTagCompound()
 
         val nodesList = NBTTagList()
-        this.nodes
-                .map { node ->
-                    NBTTagCompound().apply {
-                        setTag("pos", NBTUtil.createPosTag(node.pos))
-                        setInteger("type", node.type.ordinal)
+        this.nodes.map(ConduitNetworkNode.Companion::serializeNode).forEach(nodesList::appendTag)
+        compound.setTag("nodes", nodesList)
 
-                        if (node is ConduitNetworkGatewayNode) {
-                            setBoolean("transit", node.eligibleForTransit)
-                        }
+        val posList = NBTTagList()
+        this.edges
+                .map { (pos, edges) ->
+                    val nbtEdgesList = NBTTagList()
+                    edges.map(ConduitNetworkEdge::serializeNBT).map(nbtEdgesList::appendTag)
+                    NBTTagCompound().apply {
+                        setTag("pos", NBTUtil.createPosTag(pos))
+                        setTag("edges", nbtEdgesList)
                     }
                 }
-                .forEach(nodesList::appendTag)
-
-        compound.setTag("nodes", nodesList)
+                .forEach(posList::appendTag)
+        compound.setTag("edges", posList)
 
         return compound
     }
