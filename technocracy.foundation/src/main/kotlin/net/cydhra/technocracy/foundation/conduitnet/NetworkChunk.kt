@@ -259,6 +259,8 @@ class NetworkChunk(private val chunk: Chunk) {
                     }
                 }
             }
+
+            this.internalTransitNetwork.addAll(connectedTransitComponent)
         }
     }
 
