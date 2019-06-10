@@ -9,6 +9,7 @@ object ConduitNetworkManager {
 
     private const val NBT_KEY_NETWORK = "network"
 
+    @Suppress("unused")
     @SubscribeEvent
     fun chunkDataLoad(event: ChunkDataEvent.Load) {
         if (event.world.isRemote)
@@ -23,6 +24,7 @@ object ConduitNetworkManager {
         GlobalTransitNetworks.getNetwork(event.world.provider.dimension).loadNetworkChunk(networkChunk)
     }
 
+    @Suppress("unused")
     @SubscribeEvent
     fun chunkDataSave(event: ChunkDataEvent.Save) {
         if (event.world.isRemote)
@@ -32,6 +34,7 @@ object ConduitNetworkManager {
                 GlobalTransitNetworks.getNetwork(event.world.provider.dimension).getChunk(event.chunk.pos).serialize())
     }
 
+    @Suppress("unused")
     @SubscribeEvent
     fun chunkUnload(event: ChunkEvent.Unload) {
         if (event.world.isRemote)
