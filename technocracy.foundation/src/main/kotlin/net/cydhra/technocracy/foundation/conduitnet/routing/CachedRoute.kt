@@ -27,7 +27,7 @@ class CachedRoute(private val network: DimensionNetwork, val input: ConduitNetwo
      */
     fun isStillValid(): Boolean {
         return cacheValidityCounts.all { (count, chunkPos) ->
-            network.isChunkLoaded(chunkPos) && count == network.getChunk(chunkPos).cacheValidationCounter
+            network.isChunkLoaded(chunkPos) && count == network.getChunk(chunkPos)!!.cacheValidationCounter
         }
     }
 }

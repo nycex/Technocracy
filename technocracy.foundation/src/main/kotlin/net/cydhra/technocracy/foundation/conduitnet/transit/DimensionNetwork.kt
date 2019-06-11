@@ -41,12 +41,11 @@ class DimensionNetwork {
     }
 
     /**
-     * Get the [NetworkChunk] at the given [ChunkPos].
-     * @throws NullPointerException if the chunk at the given position isn't loaded.
+     * Get the [NetworkChunk] at the given [ChunkPos] or null if no chunk is loaded at that location.
      *
      * @see isChunkLoaded
      */
-    fun getChunk(chunkPos: ChunkPos): NetworkChunk {
-        return activeChunks[chunkPos]!!
+    fun getChunk(chunkPos: ChunkPos): NetworkChunk? {
+        return activeChunks[chunkPos]
     }
 }

@@ -30,8 +30,9 @@ object ConduitNetworkManager {
         if (event.world.isRemote)
             return
 
-        event.data.setTag(NBT_KEY_NETWORK,
-                GlobalTransitNetworks.getNetwork(event.world.provider.dimension).getChunk(event.chunk.pos).serialize())
+        val chunk = GlobalTransitNetworks.getNetwork(event.world.provider.dimension).getChunk(event.chunk.pos)
+        if (chunk != null)
+            event.data.setTag(NBT_KEY_NETWORK, chunk.serialize())
     }
 
     @Suppress("unused")
