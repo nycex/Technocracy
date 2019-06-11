@@ -48,4 +48,11 @@ class DimensionNetwork {
     fun getChunk(chunkPos: ChunkPos): NetworkChunk? {
         return activeChunks[chunkPos]
     }
+
+    /**
+     * @return all currently loaded [NetworkChunk]s of the dimension
+     */
+    fun getChunks(): List<NetworkChunk> {
+        return activeChunks.values.toList()
+    }
 }
