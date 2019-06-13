@@ -2,6 +2,7 @@ package net.cydhra.technocracy.foundation.conduitnet.transit
 
 import net.cydhra.technocracy.foundation.conduitnet.NetworkChunk
 import net.minecraft.util.math.ChunkPos
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The global network of all pipe connections assembled from chunk-based graph partitions.
@@ -10,7 +11,7 @@ class DimensionNetwork {
     /**
      * A map of all active chunks accessible by their chunk position
      */
-    private val activeChunks = mutableMapOf<ChunkPos, NetworkChunk>()
+    private val activeChunks = ConcurrentHashMap<ChunkPos, NetworkChunk>()
 
     /**
      * The transit graph as a list of nodes
@@ -52,7 +53,7 @@ class DimensionNetwork {
     /**
      * @return all currently loaded [NetworkChunk]s of the dimension
      */
-    fun getChunks(): List<NetworkChunk> {
-        return activeChunks.values.toList()
+    fun getChunks(): Collection<NetworkChunk> {
+        return activeChunks.values
     }
 }
