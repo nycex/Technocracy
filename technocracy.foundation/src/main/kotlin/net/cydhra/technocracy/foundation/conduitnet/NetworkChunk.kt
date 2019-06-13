@@ -42,6 +42,8 @@ class NetworkChunk(private val chunk: Chunk) {
      */
     private val internalTransitNetwork = mutableListOf<TransitNode>()
 
+    val transitNodes: List<TransitNode> = internalTransitNetwork
+
     /**
      * [ChunkPos] of the network chunk
      */
