@@ -56,6 +56,11 @@ class NetworkChunk(private val chunk: Chunk) {
         private set
 
     fun insertNode(pos: BlockPos, world: World, pipeType: PipeType) {
+        // to make it easier to recursively call this method on the same and on other chunks, check for existance of
+        // pipes here and not at callsite
+        if (nodes.any { it.pos == pos && it.type == pipeType })
+            return
+
         val tileEntity = world.getTileEntity(pos) ?: error("cannot insert normal block into network")
 
         val newNode = if (tileEntity is TileEntityPipe) {
@@ -75,9 +80,6 @@ class NetworkChunk(private val chunk: Chunk) {
 
         for (face in EnumFacing.values()) {
             val offPos = newNode.pos.offset(face)
-
-            if (nodes.any { it.pos == offPos })
-                continue
 
             world.getTileEntity(offPos) ?: continue
             insertNode(offPos, world, pipeType)
