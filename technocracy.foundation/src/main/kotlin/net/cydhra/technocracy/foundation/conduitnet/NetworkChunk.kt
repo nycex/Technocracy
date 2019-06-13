@@ -223,18 +223,19 @@ class NetworkChunk(private val chunk: Chunk) {
 
             val originState = DijkstraState(origin.conduitNode, null)
 
-            var candidate = originState
-            while (priorityQueue.isNotEmpty()) {
+            var candidate: DijkstraState? = originState
+            do {
                 when {
-                    candidate.node == target.conduitNode ->
+                    candidate!!.node == target.conduitNode ->
                         return candidate.calculatePath()
                     candidate.transitNode?.pathCosts?.get(target) ?: -1 > 0 ->
                         return candidate.calculatePath() + candidate.transitNode!!.pathCosts[target]!!
                     else -> {
                         val reachable = this.edges[candidate.node.pos]
-                                ?.filter { (a, b) -> a == candidate.node || b == candidate.node }
+                                ?.filter { (a, b) -> a == candidate!!.node || b == candidate!!.node }
                                 ?.map { (a, b) ->
-                                    if (a == candidate.node) DijkstraState(b, candidate) else DijkstraState(a, candidate)
+                                    if (a == candidate!!.node) DijkstraState(b, candidate) else DijkstraState(a,
+                                            candidate)
                                 }
                                 ?: emptyList()
 
@@ -243,7 +244,7 @@ class NetworkChunk(private val chunk: Chunk) {
                 }
 
                 candidate = priorityQueue.poll()
-            }
+            } while (candidate != null)
 
             throw IllegalArgumentException("there is no way from ${origin.conduitNode.pos} to ${target.conduitNode.pos}")
         }
