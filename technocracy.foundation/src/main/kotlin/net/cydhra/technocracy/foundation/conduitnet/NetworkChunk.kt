@@ -89,7 +89,8 @@ class NetworkChunk(private val chunk: Chunk) {
 
         for (face in EnumFacing.values()) {
             val offPos = newNode.pos.offset(face)
-            if (edges[pos]?.any { (a, b) -> (if (a == newNode) b else a).pos == offPos } != null)
+            // TODO test for real pipe type
+            if ((world.getTileEntity(offPos) as? TileEntityPipe)?.hasPipeType(net.cydhra.technocracy.foundation.pipes.types.PipeType.ENERGY) != true)
                 continue
             val neighborNode = nodes.firstOrNull { it.pos == offPos } ?: continue
 
