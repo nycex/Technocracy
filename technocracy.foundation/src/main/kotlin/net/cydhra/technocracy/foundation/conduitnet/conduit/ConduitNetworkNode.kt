@@ -67,6 +67,14 @@ class ConduitNetworkPassiveNode() : ConduitNetworkNode() {
             setInteger(NBT_KEY_TYPE, type.ordinal)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ConduitNetworkPassiveNode) {
+            return false
+        }
+
+        return this.type == other.type && this.pos == other.pos
+    }
 }
 
 /**
@@ -115,5 +123,13 @@ class ConduitNetworkGatewayNode() : ConduitNetworkNode() {
             setInteger(NBT_KEY_TYPE, type.ordinal)
             setBoolean(NBT_KEY_TRANSIT, eligibleForTransit)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ConduitNetworkGatewayNode) {
+            return false
+        }
+
+        return this.type == other.type && this.eligibleForTransit == other.eligibleForTransit && this.pos == other.pos
     }
 }
