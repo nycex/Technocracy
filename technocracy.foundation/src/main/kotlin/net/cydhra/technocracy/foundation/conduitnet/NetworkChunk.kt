@@ -198,7 +198,7 @@ class NetworkChunk(private val chunk: Chunk) {
                                 ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
                     } else if (node is ConduitNetworkGatewayNode) {
                         this.transitNode = transitNet.find { it.conduitNode == node }
-                        return Math.max(transitNode!!.pathCosts[target]!!,
+                        return Math.max(transitNode!!.pathCosts[target] ?: -1,
                                 this.node.pos.manhattanDistance(target.conduitNode.pos))
                     }
 
@@ -260,17 +260,9 @@ class NetworkChunk(private val chunk: Chunk) {
             // then calculate all paths between the connected transit nodes
             Lists.cartesianProduct(connectedTransitComponent, connectedTransitComponent)
                     .filter { (i, j) -> i != j }
-                    .forEach { (i, j) -> i.pathCosts[j] = -1 }
-
-            connectedTransitComponent.forEach { transitNode ->
-                transitNode.pathCosts.clear()
-
-                connectedTransitComponent.forEach { target ->
-                    if (target != transitNode) {
-                        transitNode.pathCosts[target] = calculateAStarPathCost(transitNode, target, connectedTransitComponent)
+                    .forEach { (i, j) ->
+                        i.pathCosts[j] = calculateAStarPathCost(i, j, connectedTransitComponent)
                     }
-                }
-            }
 
             this.internalTransitNetwork.addAll(connectedTransitComponent)
         }
