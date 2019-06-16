@@ -3,6 +3,7 @@ package net.cydhra.technocracy.foundation.tileentity
 import net.cydhra.technocracy.foundation.TCFoundation
 import net.cydhra.technocracy.foundation.blocks.PipeBlock
 import net.cydhra.technocracy.foundation.blocks.general.pipe
+import net.cydhra.technocracy.foundation.conduitnet.transit.GlobalTransitNetworks
 import net.cydhra.technocracy.foundation.pipes.Network
 import net.cydhra.technocracy.foundation.pipes.WrappedBlockPos
 import net.cydhra.technocracy.foundation.pipes.types.PipeType
@@ -10,6 +11,7 @@ import net.cydhra.technocracy.foundation.tileentity.components.ComponentPipeType
 import net.cydhra.technocracy.foundation.tileentity.components.NetworkComponent
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.ChunkPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
 
@@ -141,6 +143,8 @@ class TileEntityPipe(meta: Int = 0) : AggregatableTileEntity() {
             Network.addNode(WrappedBlockPos(pos), networkComponent.uuid!!, world)
         }
 
+        GlobalTransitNetworks.getNetwork(world.provider.dimension).getChunk(ChunkPos(pos))!!.insertNode(pos,
+                world, net.cydhra.technocracy.foundation.conduitnet.PipeType.ENERGY)
         calculateIOPorts()
     }
 
