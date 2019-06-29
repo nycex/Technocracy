@@ -236,6 +236,7 @@ class NetworkChunk(private val chunk: Chunk) {
                     else -> {
                         val reachable = this.edges[candidate.node.pos]
                                 ?.filter { (a, b) -> a == candidate!!.node || b == candidate!!.node }
+                                ?.filter { (a, b) -> a != candidate!!.comeFrom?.node && b != candidate!!.comeFrom?.node }
                                 ?.map { (a, b) ->
                                     if (a == candidate!!.node) DijkstraState(b, candidate) else DijkstraState(a,
                                             candidate)
