@@ -150,6 +150,7 @@ class NetworkChunk(private val chunk: Chunk) {
     private fun recalculateInternalTransitNetwork() {
         val unvisitedNodes = LinkedBlockingQueue<ConduitNetworkNode>(this.nodes.size)
         unvisitedNodes.addAll(this.nodes)
+        this.internalTransitNetwork.clear()
 
         /**
          * Perform a depth first search for all gateway nodes that are reachable from the given start node. While
