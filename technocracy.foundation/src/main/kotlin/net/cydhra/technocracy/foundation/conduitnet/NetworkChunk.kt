@@ -17,6 +17,8 @@ import net.minecraft.world.World
 import net.minecraft.world.chunk.Chunk
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
+import kotlin.math.abs
+import kotlin.math.max
 
 /**
  * A chunk of the network structure that is placed inside a chunk (who would have thought)
@@ -185,7 +187,7 @@ class NetworkChunk(private val chunk: Chunk) {
              * Extension utility function to calculate the Manhattan-distance of two block positions.
              */
             fun BlockPos.manhattanDistance(other: BlockPos): Int {
-                return Math.abs(this.x - other.x) + Math.abs(this.y - other.y) + Math.abs(this.z - other.z)
+                return abs(this.x - other.x) + abs(this.y - other.y) + abs(this.z - other.z)
             }
 
             /**
@@ -200,8 +202,8 @@ class NetworkChunk(private val chunk: Chunk) {
                                 ?: this.node.pos.manhattanDistance(target.conduitNode.pos)
                     } else if (node is ConduitNetworkGatewayNode) {
                         this.transitNode = transitNet.find { it.conduitNode == node }
-                        return Math.max(transitNode!!.pathCosts[target] ?: -1,
-                                this.node.pos.manhattanDistance(target.conduitNode.pos))
+                        return max(transitNode!!.pathCosts[target]
+                                ?: -1, this.node.pos.manhattanDistance(target.conduitNode.pos))
                     }
 
                     return this.node.pos.manhattanDistance(target.conduitNode.pos)
@@ -221,7 +223,7 @@ class NetworkChunk(private val chunk: Chunk) {
             }
 
             // a priority queue to select nodes to try next
-            val priorityQueue = PriorityQueue<DijkstraState>(comparator)
+            val priorityQueue = PriorityQueue(comparator)
 
             val originState = DijkstraState(origin.conduitNode, null)
 
