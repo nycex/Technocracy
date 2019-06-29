@@ -320,6 +320,6 @@ class NetworkChunk(private val chunk: Chunk) {
      * Extension utility function to test, whether a block position is at the edge of a chunk
      */
     private fun BlockPos.atChunkEdge(): Boolean {
-        return (this.x % 16 == 0 || this.x % 15 == 0) || (this.z % 16 == 0 || this.z % 15 == 0)
+        return (this.x % 16 == 0 || this.x % 16 == 15) || (this.z % 16 == 0 || this.z % 16 == 15)
     }
 }
