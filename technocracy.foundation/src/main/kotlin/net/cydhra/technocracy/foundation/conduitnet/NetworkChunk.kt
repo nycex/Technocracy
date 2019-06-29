@@ -226,9 +226,7 @@ class NetworkChunk(private val chunk: Chunk) {
             // a priority queue to select nodes to try next
             val priorityQueue = PriorityQueue(comparator)
 
-            val originState = DijkstraState(origin.conduitNode, null)
-
-            var candidate: DijkstraState? = originState
+            var candidate: DijkstraState? = DijkstraState(origin.conduitNode, null)
             do {
                 when {
                     candidate!!.node == target.conduitNode ->
