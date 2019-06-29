@@ -81,10 +81,10 @@ object ConduitNetworkManager {
             nChunk.transitNodes.forEach { tNode ->
                 tNode.pathCosts.keys.forEach { tPathNode ->
                     with(tNode.conduitNode.pos) {
-                        GL11.glVertex3d(x.toDouble(), y.toDouble(), z.toDouble())
+                        GL11.glVertex3d(x.toDouble() + 0.5, y.toDouble() + 0.5, z.toDouble() + 0.5)
                     }
                     with(tPathNode.conduitNode.pos) {
-                        GL11.glVertex3d(x.toDouble(), y.toDouble(), z.toDouble())
+                        GL11.glVertex3d(x.toDouble() + 0.5, y.toDouble() + 0.5, z.toDouble() + 0.5)
                     }
                 }
             }
