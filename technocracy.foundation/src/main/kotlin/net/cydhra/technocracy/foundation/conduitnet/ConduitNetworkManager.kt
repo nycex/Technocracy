@@ -25,7 +25,6 @@ object ConduitNetworkManager {
         }
 
         GlobalTransitNetworks.getNetwork(event.world.provider.dimension).loadNetworkChunk(networkChunk)
-        println("loaded ${networkChunk.chunkPos}")
     }
 
     @Suppress("unused")
@@ -34,9 +33,15 @@ object ConduitNetworkManager {
         if (event.world.isRemote)
             return
 
-        val chunk = GlobalTransitNetworks.getNetwork(event.world.provider.dimension).getChunk(event.chunk.pos)
-        if (chunk != null)
-            event.data.setTag(NBT_KEY_NETWORK, chunk.serialize())
+        var chunk = GlobalTransitNetworks.getNetwork(event.world.provider.dimension).getChunk(event.chunk.pos)
+
+        // when a chunk is first created, no load event is fired, instead it is immediately saved
+        if (chunk == null) {
+            chunk = NetworkChunk(event.chunk)
+            GlobalTransitNetworks.getNetwork(event.world.provider.dimension).loadNetworkChunk(chunk)
+        }
+
+        event.data.setTag(NBT_KEY_NETWORK, chunk.serialize())
     }
 
     @Suppress("unused")
