@@ -265,6 +265,7 @@ class NetworkChunk(private val chunk: Chunk) {
             Lists.cartesianProduct(connectedTransitComponent, connectedTransitComponent)
                     .filter { (i, j) -> i != j }
                     .forEach { (i, j) ->
+                        // TODO: pathCosts probably must be cleared. is there a bug here?
                         i.pathCosts[j] = calculateAStarPathCost(i, j, connectedTransitComponent)
                     }
 
