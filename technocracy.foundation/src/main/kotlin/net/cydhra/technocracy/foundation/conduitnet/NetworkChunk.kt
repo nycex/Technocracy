@@ -5,6 +5,7 @@ import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkEdge
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkGatewayNode
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkNode
 import net.cydhra.technocracy.foundation.conduitnet.conduit.ConduitNetworkPassiveNode
+import net.cydhra.technocracy.foundation.conduitnet.transit.GlobalTransitNetworks
 import net.cydhra.technocracy.foundation.conduitnet.transit.TransitNode
 import net.cydhra.technocracy.foundation.tileentity.TileEntityPipe
 import net.minecraft.nbt.NBTTagCompound
@@ -86,7 +87,9 @@ class NetworkChunk(private val chunk: Chunk) {
             val offPos = newNode.pos.offset(face)
 
             world.getTileEntity(offPos) ?: continue
-            insertNode(offPos, world, pipeType)
+
+            GlobalTransitNetworks.getNetwork(world.provider.dimension).getChunk(ChunkPos(offPos))!!.insertNode(offPos,
+                    world, pipeType)
         }
 
         edges.putIfAbsent(pos, mutableListOf())
@@ -320,6 +323,7 @@ class NetworkChunk(private val chunk: Chunk) {
      * Extension utility function to test, whether a block position is at the edge of a chunk
      */
     private fun BlockPos.atChunkEdge(): Boolean {
-        return (this.x % 16 == 0 || this.x % 16 == 15) || (this.z % 16 == 0 || this.z % 16 == 15)
+        return Math.floorMod(this.x, 16) == 0 || Math.floorMod(this.x, 16) == 15
+                || Math.floorMod(this.z, 16) == 0 || Math.floorMod(this.z, 16) == 15
     }
 }
